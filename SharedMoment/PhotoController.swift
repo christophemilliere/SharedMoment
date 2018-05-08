@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PhotoController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class PhotoController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate {
 
     @IBOutlet weak var sharedButton: UIBarButtonItem!
     @IBOutlet weak var photoShared: UIImageView!
@@ -35,6 +35,14 @@ class PhotoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         imagePicker = UIImagePickerController()
         imagePicker?.delegate = self
         imagePicker?.allowsEditing = true
+        
+        textShared.delegate = self
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == textEmpty {
+            textView.text = ""
+        }
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -84,7 +92,29 @@ class PhotoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     }
     
     @IBAction func buttonAction(_ sender: Any) {
+        var contentShared: [Any] = [Any]()
+        
+        if let image = photoShared.image, image != #imageLiteral(resourceName: "Superman-facebook.svg") {
+            contentShared.append(image)
+        }
+        
+        if textShared.text != "", textShared.text != textEmpty {
+            contentShared.append(textShared.text)
+        }
+        
+        let activity = UIActivityViewController(activityItems: contentShared, applicationActivities: nil)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let pop = activity.popoverPresentationController {
+                pop.sourceView = self.view
+                pop.sourceRect = CGRect(x: self.view.frame.minX, y: self.view.frame.midY, width: 0, height: 0)
+                pop.permittedArrowDirections = []
+            }
+        }
+        self.present(activity, animated: true) {
+            self.setup()
+        }
     }
+    
     
     
     
